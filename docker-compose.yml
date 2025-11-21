@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  # ... (数据库、Redis、RabbitMQ 配置保持不变) ...
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: nutri_guard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  # 后端服务
+  backend:
+    build: ./NutriGuard  # 👈 这里写后端文件夹的名字
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nutri_guard
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+      # 如果有 Key，记得加在这里
+      SPRING_AI_OPENAI_API_KEY: sk-1fd59aed2b9c40acb067fe7b32f0a576
+
+  # 前端服务
+  frontend:
+    build: ./NutriGuard-web   # 👈 这里一定要改成你前端文件夹的【真实名字】！
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
