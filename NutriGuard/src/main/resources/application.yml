@@ -1,0 +1,58 @@
+server:
+  port: 8080
+
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672            # RabbitMQ 默认通信端口
+    username: guest       # 默认账号
+    password: guest       # 默认密码
+    listener:
+        simple:
+          acknowledge-mode: auto
+  application:
+    name: nutri-guard
+
+  # 1. 数据库配置 (PostgreSQL)
+  datasource:
+    url: jdbc:postgresql://postgres:5432/nutri_guard
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  # 2. Redis 核心配置 (被 Spring AI Memory Store 自动使用)
+  data:
+    redis:
+      host: redis
+      port: 6379
+      database: 0
+
+  # 3. Spring AI 配置
+  ai:
+    chat:
+      memory:
+        store: redis
+        redis:
+          ttl: 30m # 30分钟会话超时
+
+    # 核心：Provider 配置 (OpenAI Starter with DashScope Base URL)
+    openai:
+
+      api-key: sk-1fd59aed2b9c40acb067fe7b32f0a576
+
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+
+      # Chat 选项 (用于对话)
+      chat:
+        options:
+          model: qwen-turbo
+
+      # Embedding 选项 (用于 RAG 向量化)
+      embedding:
+        options:
+          model: text-embedding-v1
+
+# 4. MyBatis Plus 配置
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
